@@ -9,10 +9,10 @@
  * @copyright  2022 Iñigo Flores
  * @license    https://opensource.org/licenses/MIT  MIT License
  * @version    0.01
- * @link       https://github.com/inigoflores/helium-miner-log-analyzer
+ * @link       https://github.com/inigoflores/lora-packet-forwarder-analyzer
   */
 
-$logsFolder = '/var/log/packet-forwarder/';
+$logsPath = '/var/log/packet-forwarder/';
 
 
 $startDate = "2000-01-01";
@@ -41,9 +41,9 @@ uksort($opts, function ($a, $b) use ($options) {
 // Handle command line arguments
 foreach (array_keys($opts) as $opt) switch ($opt) {
     case 'p':
-        $logsFolder = $opts['p'];
-        if (substr($logsFolder,strlen($logsFolder)-1) != "/"){
-            $logsFolder.="/";
+        $logsPath = $opts['p'];
+        if (substr($logsPath,strlen($logsPath)-1) != "/" && is_dir($logsPath)){
+            $logsPath.="/";
         };
         break;
 
@@ -57,19 +57,19 @@ foreach (array_keys($opts) as $opt) switch ($opt) {
         $endDate = $opts['e'];
         break;
     case 'a':
-        echo "\nUsing logs in folder {$logsFolder}\n\n";
-        $packets = extractData($logsFolder,$startDate,$endDate);
+        echo "\nUsing logs in {$logsPath}\n\n";
+        $packets = extractData($logsPath,$startDate,$endDate);
         echo generateStats($packets);
         exit(1);
 
     case 'l':
-        echo "\nUsing logs in folder {$logsFolder}\n\n";
-        $packets = extractData($logsFolder,$startDate,$endDate);
+        echo "\nUsing logs in {$logsPath}\n\n";
+        $packets = extractData($logsPath,$startDate,$endDate);
         echo generateList($packets,$includeDataPackets);
         exit(1);
         
     case 'c':
-        $packets = extractData($logsFolder,$startDate,$endDate);
+        $packets = extractData($logsPath,$startDate,$endDate);
         $filename = $opts['c'];
         echo generateCSV($packets,$filename,$includeDataPackets);
         exit(1);        
@@ -83,19 +83,26 @@ foreach (array_keys($opts) as $opt) switch ($opt) {
  */
 
 /**
- * @param $logsFolder
+ * @param $logsPath
  * @return array
  */
-function extractData($logsFolder, $startDate = "", $endDate = ""){
+function extractData($logsPath, $startDate = "", $endDate = ""){
 
-    $filenames = glob("{$logsFolder}packet_forwarder*.log*");
+    if (is_dir($logsPath)) {
+        $filenames = glob("{$logsPath}packet_forwarder*.log*");
+    } else if (is_file($logsPath)) {
+        $filenames = [$logsPath];
+    } else {
+        exit ("Path is not a valid folder or file.\n");
+    }
 
-    //print_r("{$logsFolder}packet_forwarder*.log*");
     if (empty($filenames)){
         exit ("No logs found. Install the service and let it run for some time before running this command again.\n");
     }
 
     rsort($filenames); //Order is important, from older to more recent.
+
+    $packets = [];
 
     foreach ($filenames as $filename) {
 
@@ -107,14 +114,11 @@ function extractData($logsFolder, $startDate = "", $endDate = ""){
         $lines = explode("\n", $buf);
         unset($buf);
 
-        $packets = [];
         foreach ($lines as $line) {
 
             if (!strstr($line,'rxpk')) { //empty line
                 continue;
             }
-
-
 
             $temp = explode('{"rxpk":', $line);
             $temp1 = explode(" ",$temp[0]);
@@ -123,16 +127,13 @@ function extractData($logsFolder, $startDate = "", $endDate = ""){
             if ($datetime < $startDate || $datetime > $endDate) {
                 continue;
             }
-            //echo strstr($fields[2], '{"rxpk"');die();
 
-            //echo '{"rxpk":' . $temp[1];
             $packet = json_decode('{"rxpk":' . $temp[1]);
 
             if (empty($packet)) {
                  continue;
             }
             $packet = $packet->rxpk[0];
-            // print_r($packet);//die();
 
             if (isset($packet->rssis)) {
                 $rssi = $packet->rssis;
@@ -140,7 +141,7 @@ function extractData($logsFolder, $startDate = "", $endDate = ""){
                 $rssi = $packet->rssi;
             }
 
-            if (strstr($packet->data,"QDD")) {
+            if (substr($packet->data,0,3)=="QDD") {
                 $type = "witness";
             } else {
                 $type = "data";
@@ -152,6 +153,7 @@ function extractData($logsFolder, $startDate = "", $endDate = ""){
             $packets[] = compact('datetime', 'freq', 'rssi', 'snr', 'type');
         }
     }
+
     return $packets;
 }
 
@@ -196,55 +198,57 @@ function generateStats($packets) {
         }
     }
     foreach ($packetDataByFrequency as $freq => $rssifreq) {
-        $packetRssiAverages["{$freq}"] = number_format(getMedian($packetDataByFrequency["{$freq}"]['rssi']),2);
-        $packetSnrAverages["{$freq}"] =  number_format(getMedian($packetDataByFrequency["{$freq}"]['snr']),2);
+        $packetRssiAverages["{$freq}"] = number_format(getMean($packetDataByFrequency["{$freq}"]['rssi']),2);
+        $packetRssiMins["{$freq}"] = number_format(min($packetDataByFrequency["{$freq}"]['rssi']),2);
+        $packetSnrAverages["{$freq}"] =  number_format(getMean($packetDataByFrequency["{$freq}"]['snr']),2);
     }
 
     foreach ($witnessDataByFrequency as $freq => $rssifreq) {
-        $witnessRssiAverages["{$freq}"] = number_format(getMedian($witnessDataByFrequency["{$freq}"]['rssi']) ,2);
-        $witnessSnrsAverages["{$freq}"] =  number_format(getMedian($witnessDataByFrequency["{$freq}"]['snr']),2);
+        $witnessRssiAverages["{$freq}"] = number_format(getMean($witnessDataByFrequency["{$freq}"]['rssi']) ,2);
+        $witnessRssiMins["{$freq}"] = number_format(min($witnessDataByFrequency["{$freq}"]['rssi']) ,2);
+        $witnessSnrsAverages["{$freq}"] =  number_format(getMean($witnessDataByFrequency["{$freq}"]['snr']),2);
     }
 
     $freqs = array_keys($packetDataByFrequency);
     sort($freqs);
 
-    $totalPacketsPerHour = round($totalPackets / $intervalInHours,2);
-    $totalWitnessesPerHour = round($totalWitnesses / $intervalInHours,2);
+    $totalPacketsPerHour = number_format(round($totalPackets / $intervalInHours,2),2,".","");
+    $totalWitnessesPerHour = number_format(round($totalWitnesses / $intervalInHours,2), 2,".","");
 
-    $totalPacketsPerHour = str_pad("($totalPacketsPerHour)",9, " ", STR_PAD_LEFT);;
-    $totalWitnessesPerHour = str_pad("($totalWitnessesPerHour)",9, " ", STR_PAD_LEFT);;
-
+    $totalPacketsPerHour = str_pad("($totalPacketsPerHour",9, " ", STR_PAD_LEFT);;
+    $totalWitnessesPerHour = str_pad("($totalWitnessesPerHour",9, " ", STR_PAD_LEFT);;
 
     $totalWitnesses = str_pad($totalWitnesses,7, " ", STR_PAD_LEFT);
     $totalPackets = str_pad($totalPackets,7, " ", STR_PAD_LEFT);
     $lowestPacketRssi = str_pad($lowestPacketRssi,7," ",STR_PAD_LEFT);
     $lowestWitnessRssi = str_pad($lowestWitnessRssi,7," ",STR_PAD_LEFT);
 
-
     $output = "";
-    $output.= "Total Packets:        $totalPackets $totalPacketsPerHour/hour\n";
-    $output.= "Total Witnesses:      $totalWitnesses $totalWitnessesPerHour/hour \n";
-    $output.= "Lower Packet RSSI:    $lowestPacketRssi dBm\n";
-    $output.= "Lower Witness RSSI:   $lowestWitnessRssi dBm\n";
+    $output.= "Total Witnesses:      $totalWitnesses $totalWitnessesPerHour/hour)\n";
+    $output.= "Total Packets:        $totalPackets $totalPacketsPerHour/hour)\n";
+    $output.= "Lowest Witness RSSI:  $lowestWitnessRssi dBm\n";
+    $output.= "Lowest Packet RSSI:   $lowestPacketRssi dBm\n";
     $output.= "\n";
-    $output.= "      -------------------------------------------------------  "  . PHP_EOL;
-    $output.= "      |        Witnesses        |        Packets               " . PHP_EOL;
-    $output.= "      -------------------------------------------------------  " . PHP_EOL;
-    $output.= "Freq  | Num  | RSSI    | SNR    | Num    | RSSI    | SNR       " . PHP_EOL;
-    $output.= "-------------------------------------------------------------  " . PHP_EOL;
+    $output.= "      -----------------------------------------------------------------------------  "  . PHP_EOL;
+    $output.= "      |        Witnesses                    |          All Packets              " . PHP_EOL;
+    $output.= "      -----------------------------------------------------------------------------  " . PHP_EOL;
+    $output.= "Freq  | Num  | RSSI Avg | RSSI Min | SNR    | Num    | RSSI Avg | RSSI Min | SNR       " . PHP_EOL;
+    $output.= "-----------------------------------------------------------------------------------  " . PHP_EOL;
 
     foreach ($freqs as $freq) {
-        $numberOfWitnesses = str_pad(count($witnessDataByFrequency[$freq]['rssi']), 4, " ", STR_PAD_LEFT);
-        $witnessRssi = str_pad($witnessRssiAverages["{$freq}"] , 7, " ", STR_PAD_LEFT);
-        $witnessSnr = str_pad($witnessSnrsAverages["{$freq}"] , 6, " ", STR_PAD_LEFT);
+        $numberOfWitnesses = @str_pad(count($witnessDataByFrequency[$freq]['rssi']), 4, " ", STR_PAD_LEFT);
+        $witnessRssi = @str_pad($witnessRssiAverages["{$freq}"] , 7, " ", STR_PAD_LEFT);
+        $witnessSnr = @str_pad($witnessSnrsAverages["{$freq}"] , 6, " ", STR_PAD_LEFT);
+        $witnessRssiMin = @str_pad($witnessRssiMins["{$freq}"] , 7, " ", STR_PAD_LEFT);
 
         $numberOfPackets = str_pad(count($packetDataByFrequency[$freq]['rssi']), 6, " ", STR_PAD_LEFT);
         $packetRssi = str_pad($packetRssiAverages["{$freq}"] , 7, " ", STR_PAD_LEFT);
         $packetSnr = str_pad($packetSnrAverages["{$freq}"] , 6, " ", STR_PAD_LEFT);
+        $packetRssiMin = str_pad($packetRssiMins["{$freq}"] , 7, " ", STR_PAD_LEFT);
 
-        $output.= "$freq | $numberOfWitnesses | $witnessRssi | $witnessSnr | $numberOfPackets | $packetRssi | $packetSnr " . PHP_EOL;
+        $output.= "$freq | $numberOfWitnesses |  $witnessRssi |  $witnessRssiMin | $witnessSnr | $numberOfPackets |  $packetRssi |  $packetRssiMin | $packetSnr " . PHP_EOL;
     };
-    $output.= "-------------------------------------------------------------  " . PHP_EOL;
+    $output.= "------------------------------------------------------------------------------------  " . PHP_EOL;
 
     echo $output;
 }
@@ -256,10 +260,14 @@ function generateStats($packets) {
  * @return string
  */
 function generateList($packets, $includeDataPackets = false) {
+
+    //Sort packets by datetime
+    usort($packets, function($a, $b) {
+        return $a['datetime'] <=> $b['datetime'];
+    });
+
     $output = "Date                | RSSI | Freq  | SNR   | Noise  | Type    \n";
     $output.= "-------------------------------------------------------------  \n";
-
-    echo $includeDataPackets;
 
     foreach ($packets as $packet){
         if ($packet['type']!="witness" && !$includeDataPackets){
@@ -270,7 +278,7 @@ function generateList($packets, $includeDataPackets = false) {
         $snr = str_pad($packet['snr'], 5, " ", STR_PAD_LEFT);
         $noise = str_pad(number_format((float) ($packet['rssi'] - $packet['snr']),1),6,  " ", STR_PAD_LEFT);
         $type = str_pad($packet['type'],6,  " ", STR_PAD_LEFT);
-        //$challenger = @str_pad($beacon['challenger'],52, " ", STR_PAD_RIGHT);
+        //$challenger = @str_pad($packet['challenger'],52, " ", STR_PAD_RIGHT);
         $challenger="";
         $output.=@"{$packet['datetime']} | {$rssi} | {$packet['freq']} | {$snr} | {$noise} | $type \n";
 
@@ -285,6 +293,12 @@ function generateList($packets, $includeDataPackets = false) {
  * @return string
  */
 function generateCSV($packets, $filename = false, $includeDataPackets = false) {
+
+    //Sort packets by datetime
+    usort($packets, function($a, $b) {
+        return $a['datetime'] <=> $b['datetime'];
+    });
+
     $columns = ['Date','Freq','RSSI','SNR','Noise','Type'];
     $data = array2csv($columns);
     foreach ($packets as $packet){
