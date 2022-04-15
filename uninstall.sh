@@ -12,7 +12,7 @@ systemctl disable packet-forwarder-sniffer.service
 systemctl daemon-reload
 
 # Delete files
-echo "Removing service"
+echo "Removing service files"
 rm /etc/systemd/system/packet-forwarder-sniffer.service
 rm /etc/logrotate.d/packet-forwarder-sniffer.conf
 rm /usr/local/sbin/packet-forwarder-sniffer.sh

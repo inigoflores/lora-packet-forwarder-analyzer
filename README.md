@@ -26,8 +26,15 @@ You can clone the repository with:
 
 ## Installation
 
-  To Do....
+To install the service, run:
 
+    ./install.sh
+
+Packet logging will start straight away in /var/log/packet-forwarder/packet_forwarder.log  
+
+You can uninstall the service by running:
+
+    ./uninstall.sh
 
 ## Tool usage
 
