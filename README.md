@@ -6,7 +6,7 @@ Ths means it can work without the miner being synced or even present in the syst
 
 It consists of two parts: 
 
-* An installable service that captures packet data and stores it in log files (To Do).
+* An installable service that captures packet data and stores it in log files.
 * A tool to analyze the generated logs
 
 It currently works on Debian based helium miners. 
@@ -17,6 +17,7 @@ The script needs PHP 7, ngrep and gawk to run. On Debian based miners you can in
 
     sudo apt install php-cli ngrep gawk
 
+These packages will be automatically installed when installing the service below.
 
 ## Downloading
 
