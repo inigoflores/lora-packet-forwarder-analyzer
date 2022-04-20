@@ -272,7 +272,7 @@ function generateList($packets, $includeDataPackets = false) {
         return $a['datetime'] <=> $b['datetime'];
     });
 
-    $header = "Date                | RSSI | Freq  | SNR   | Noise  | Type    | Hash";
+    $header = "Date                | Freq  | RSSI | SNR   | Noise  | Type    | Hash";
     $separator = "-------------------------------------------------------------------------------------------------------------";
     $output="";
 
@@ -286,7 +286,7 @@ function generateList($packets, $includeDataPackets = false) {
         $noise = str_pad(number_format((float) ($packet['rssi'] - $packet['snr']),1),6,  " ", STR_PAD_LEFT);
         $type = str_pad($packet['type'],7,  " ", STR_PAD_LEFT);
         $hash = @str_pad($packet['hash'],44, " ", STR_PAD_RIGHT);
-        $output.=@"{$packet['datetime']} | {$rssi} | {$packet['freq']} | {$snr} | {$noise} | $type | $hash" . PHP_EOL;
+        $output.=@"{$packet['datetime']} | {$packet['freq']} | {$rssi} | {$snr} | {$noise} | $type | $hash" . PHP_EOL;
     }
     return $header . PHP_EOL . $separator . PHP_EOL . $output;
 }
