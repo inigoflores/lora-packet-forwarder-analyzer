@@ -141,21 +141,22 @@ function extractData($logsPath, $startDate = "", $endDate = ""){
                 $rssi = $packet->rssi;
             }
 
-            if (substr($packet->data,0,3)=="QDD") {
+            $decodedData = base64_decode($packet->data);
+            if (substr($packet->data,0,3)=="QDD" && strlen($decodedData)==52) {
                 $type = "witness";
                 //LongFi packet. The Onion Compact Key starts at position 12 and is 33 bytes long. THanks to @ricopt5 for helping me figure this out.
-                $onionCompactKey = substr(base64_decode($packet->data),12,33);
-                $onionKeyHash = base64url_encode(hash('sha256',$onionCompactKey,true));
+                $onionCompactKey = substr($decodedData,12,33);
+                $hash = base64url_encode(hash('sha256',$onionCompactKey,true)); // This is the Onion Key Hash
 
             } else {
                 $type = "data";
-                $onionKeyHash = "";
+                $hash = base64url_encode(hash('crc32b',$decodedData,true)); //
             }
 
             $snr = $packet->lsnr;
             $freq = $packet->freq;
 
-            $packets[] = compact('datetime', 'freq', 'rssi', 'snr', 'type','onionKeyHash');
+            $packets[] = compact('datetime', 'freq', 'rssi', 'snr', 'type','hash');
         }
     }
 
@@ -271,14 +272,8 @@ function generateList($packets, $includeDataPackets = false) {
         return $a['datetime'] <=> $b['datetime'];
     });
 
-    $header = "Date                | RSSI | Freq  | SNR   | Noise  | Type    ";
-    $separator = "-----------------------------------------------------------";
-
-    if (!$includeDataPackets) {
-        $header.= "| Onion Key Hash";
-        $separator.= "--------------------------------------------------";
-    }
-
+    $header = "Date                | RSSI | Freq  | SNR   | Noise  | Type    | Hash";
+    $separator = "-------------------------------------------------------------------------------------------------------------";
     $output="";
 
     foreach ($packets as $packet){
@@ -289,14 +284,9 @@ function generateList($packets, $includeDataPackets = false) {
         $rssi = str_pad($packet['rssi'], 4, " ", STR_PAD_LEFT);
         $snr = str_pad($packet['snr'], 5, " ", STR_PAD_LEFT);
         $noise = str_pad(number_format((float) ($packet['rssi'] - $packet['snr']),1),6,  " ", STR_PAD_LEFT);
-        $type = str_pad($packet['type'],6,  " ", STR_PAD_LEFT);
-        $onionKeyHash = @str_pad($packet['onionKeyHash'],44, " ", STR_PAD_RIGHT);
-        $output.=@"{$packet['datetime']} | {$rssi} | {$packet['freq']} | {$snr} | {$noise} | $type ";
-        if (!$includeDataPackets) {
-            $output.= "| $onionKeyHash" ;
-        }
-        $output.= PHP_EOL;
-
+        $type = str_pad($packet['type'],7,  " ", STR_PAD_LEFT);
+        $hash = @str_pad($packet['hash'],44, " ", STR_PAD_RIGHT);
+        $output.=@"{$packet['datetime']} | {$rssi} | {$packet['freq']} | {$snr} | {$noise} | $type | $hash" . PHP_EOL;
     }
     return $header . PHP_EOL . $separator . PHP_EOL . $output;
 }
@@ -314,7 +304,7 @@ function generateCSV($packets, $filename = false, $includeDataPackets = false) {
         return $a['datetime'] <=> $b['datetime'];
     });
 
-    $columns = ['Date','Freq','RSSI','SNR','Noise','Type','Onion Key Hash'];
+    $columns = ['Date','Freq','RSSI','SNR','Noise','Type','Hash'];
     $data = array2csv($columns);
     foreach ($packets as $packet){
         if ($packet['type']!="witness" && !$includeDataPackets){
@@ -323,7 +313,7 @@ function generateCSV($packets, $filename = false, $includeDataPackets = false) {
 
         $noise = number_format((float) ($packet['rssi'] - $packet['snr']),1);
         $data.= @array2csv([
-            $packet['datetime'], $packet['freq'], $packet['rssi'], $packet['snr'], $noise, $packet['type'], $packet['onionKeyHash']]
+            $packet['datetime'], $packet['freq'], $packet['rssi'], $packet['snr'], $noise, $packet['type'], $packet['hash']]
         );
     }
 

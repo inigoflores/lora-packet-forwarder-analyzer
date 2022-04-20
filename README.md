@@ -94,7 +94,7 @@ You can uninstall the service by running:
 
     Using logs in folder /var/log/packet-forwarder/
 
-    Date                | RSSI | Freq  | SNR   | Noise  | Type    | Onion Key Hash
+    Date                | RSSI | Freq  | SNR   | Noise  | Type    | Hash
     -------------------------------------------------------------------------------------------------------------
     2022-04-08 16:49:29 | -119 | 868.1 |  -6.2 | -112.8 | witness | ycWNRqQ4-5qwSXR7YpAd-2lURKHm7n5D7eoWQvzLgbY
     2022-04-08 17:15:29 |  -94 | 868.1 |  10.5 | -104.5 | witness | JJgZlfvz2kK_ZJY4-Mbj93JDxx4RZdIZyJQjWLeO-uc
@@ -150,7 +150,7 @@ You can uninstall the service by running:
     2022-04-09 09:27:52 | -118 | 867.1 |  -6.2 | -111.8 | witness | 6qd0j85gvAW73OqS2AOv_70blafCNhiXOGD1xD5AI38
 
 
-Currently it can't extract the challenger, only the Onion Key Hash (useful to be able to identify witnesses when comparing two miners side by side). A lookup in the blockchain needs to be performed to obtain the PoC transaction, and from there the challenger.
+Currently it can't extract the challenger for received witnesses, only the Onion Key Hash (useful to be able to identify witnesses when comparing two miners side by side). A lookup in the blockchain needs to be performed to obtain the PoC transaction, and from there the challenger.
 
 ### Export to CSV
 
