@@ -12,7 +12,7 @@
  * @link       https://github.com/inigoflores/lora-packet-forwarder-analyzer
   */
 
-$logsPath = '/var/log/packet-forwarder/';
+$logsPath = '/var/log/packet-forwarder/packet_forwarder.log';
 
 
 $startDate = "2000-01-01";
