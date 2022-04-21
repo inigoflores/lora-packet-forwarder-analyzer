@@ -11,6 +11,9 @@ It consists of two parts:
 
 It currently works on Debian based helium miners. 
 
+As the moment it can't extract the challenger for received witnesses, only the Onion Key Hash (useful to be able to identify witnesses when comparing two miners side by side). A lookup in the blockchain needs to be performed to obtain the PoC transaction, and from there the challenger.
+
+
 ## Requirements
 
 The script needs PHP 7, ngrep and gawk to run. On Debian based miners you can install it with:
@@ -132,25 +135,47 @@ You can uninstall the service by running:
     2022-04-09 02:26:02 |  -95 | 868.5 |   5.8 | -100.8 | witness | 8Pwq2ny6x5PrleEGZtXAl3oYmZjB_sze4fGtCaro8ZU
     2022-04-09 02:36:16 | -120 | 867.7 |    -6 | -114.0 | witness | GIU2to9g6mMkmWmA-yDkm5jHw1uSqxYoLRbePBf0cSc
     2022-04-09 02:44:01 | -122 | 867.9 |  -7.2 | -114.8 | witness | U2mBEjAs8Qum3Pi8Iom-N7jzl46TFnuBODNAleFosm0
-    2022-04-09 02:49:54 | -105 | 868.1 |   4.8 | -109.8 | witness | KKPrKaRo-kZNHVT9jzJ_F0ARPEN4w4Jv0HvdTQwUIHM
-    2022-04-09 03:03:31 | -125 | 867.3 | -13.8 | -111.2 | witness | 6ReiPdUVkhFCh0d4LVz5Y-rGuHipc-yIjVs6yMTVTV8
-    2022-04-09 04:25:12 |  -97 | 867.1 |   9.2 | -106.2 | witness | DM7rxhZvZdeQqaG3uMbvudXKwHBTXs7Nr79r3sZlLSM
-    2022-04-09 04:27:46 | -106 | 868.3 |  -4.8 | -101.2 | witness | grVZSek82mVesmVT6HOxA79s2UKvby466q_zN3aW_2E
-    2022-04-09 04:54:35 | -114 | 868.3 | -11.5 | -102.5 | witness | En6PpAAT7OjEm-HSrUX3MJeQx7KB9v1qMyjA1x6U0BU
-    2022-04-09 05:06:55 | -105 | 868.3 |   6.2 | -111.2 | witness | Vu9GDxDQFTgkc4jkfV5xXVLtM9cv6p7rw6yOCQjZQ2w
-    2022-04-09 05:42:31 | -117 | 868.5 |  -9.8 | -107.2 | witness | CeXsF1IavRie4YboRtGdEosvq8NIDsngvqsgpBTICH8
-    2022-04-09 06:16:49 | -130 | 867.9 | -12.8 | -117.2 | witness | pVfhTKcEtuyHkmtH_PjP1v0AnoaR8NVirSEfpNCsfl8
-    2022-04-09 06:21:00 | -118 | 867.9 | -10.2 | -107.8 | witness | qk1L9D1ez8Ns0lYct-NZ983R2q-HNlaTHHAGSlVSy_c
-    2022-04-09 06:23:22 | -101 | 867.7 |   6.2 | -107.2 | witness | fflKDFi4MkunL8FVFmQaCfeZsNihWq7EGFKuFo8UEYU
-    2022-04-09 06:49:26 | -121 | 867.5 |   -12 | -109.0 | witness | tNaRiu4GnlLT2W8Y53sQK6DXBerV1Gdm0xwm39c3-HQ
-    2022-04-09 07:08:45 | -117 | 867.9 |  -8.2 | -108.8 | witness | ravHsadBXAgXSApcCohn_oHj4UiViDqDvegJFAVHK70
-    2022-04-09 07:47:52 | -106 | 868.5 |  -5.5 | -100.5 | witness | h7CvQLMk_n34GT5jgpz70bZo_vC5XfHuawqt7dGdiEM
-    2022-04-09 08:08:36 | -107 | 867.5 |   3.8 | -110.8 | witness | 16-7Y0JY1j-x-96zEhV1QYaoxJRmeaJl79M0FH123lk
-    2022-04-09 09:12:02 | -118 | 867.3 | -14.5 | -103.5 | witness | whkODN5ODYjwsQn9-oXsC6vWDT9iV8wNwVsMFUzouCo
-    2022-04-09 09:27:52 | -118 | 867.1 |  -6.2 | -111.8 | witness | 6qd0j85gvAW73OqS2AOv_70blafCNhiXOGD1xD5AI38
 
 
-Currently it can't extract the challenger for received witnesses, only the Onion Key Hash (useful to be able to identify witnesses when comparing two miners side by side). A lookup in the blockchain needs to be performed to obtain the PoC transaction, and from there the challenger.
+## Show list of all packets received
+
+    ./processlogs.php -ld 
+    
+    Using logs in /var/log/packet-forwarder/
+    
+    Date                | Freq  | RSSI | SNR   | Noise  | Type    | Hash
+    -------------------------------------------------------------------------------------------------------------
+    2022-04-08 16:49:17 | 868.1 | -108 |  -3.2 | -104.8 |    data | LWCAGQ                                      
+    2022-04-08 16:49:17 | 868.3 | -113 |    -6 | -107.0 |    data | spbt8g                                      
+    2022-04-08 16:49:17 | 868.3 | -112 |  -4.2 | -107.8 |    data | spbt8g                                      
+    2022-04-08 16:49:18 | 868.3 | -105 |   0.2 | -105.2 |    data | LWCAGQ                                      
+    2022-04-08 16:49:18 | 868.3 | -102 |   2.8 | -104.8 |    data | LvT-LA                                      
+    2022-04-08 16:49:18 | 868.5 | -105 |    -2 | -103.0 |    data | LWCAGQ                                      
+    2022-04-08 16:49:19 | 868.1 | -110 |  -3.5 | -106.5 |    data | LWCAGQ                                      
+    2022-04-08 16:49:20 | 868.3 | -106 |  -1.8 | -104.2 |    data | LWCAGQ                                      
+    2022-04-08 16:49:20 | 868.1 |  -91 |   7.5 |  -98.5 |    data | G-geEA                                      
+    2022-04-08 16:49:20 | 868.1 |  -93 |   7.8 | -100.8 |    data | G-geEA                                      
+    2022-04-08 16:49:20 | 868.1 |  -91 |   7.8 |  -98.8 |    data | TbK5lg                                      
+    2022-04-08 16:49:20 | 868.5 | -107 |  -2.2 | -104.8 |    data | LWCAGQ                                      
+    2022-04-08 16:49:20 | 868.1 |  -91 |   8.2 |  -99.2 |    data | N9n91w                                      
+    2022-04-08 16:49:23 | 868.3 | -110 |  -6.5 | -103.5 |    data | _F4QpQ                                      
+    2022-04-08 16:49:24 | 868.1 | -115 |    -2 | -113.0 |    data | 84SyvA                                      
+    2022-04-08 16:49:25 | 868.3 | -114 |    -6 | -108.0 |    data | 84SyvA                                      
+    2022-04-08 16:49:25 | 868.3 | -109 |  -2.8 | -106.2 |    data | J64Htw                                      
+    2022-04-08 16:49:26 | 868.1 | -118 |  -5.5 | -112.5 |    data | 84SyvA                                      
+    2022-04-08 16:49:26 | 868.1 |  -93 |   7.8 | -100.8 |    data | x_JSqA                                      
+    2022-04-08 16:49:27 | 868.1 |  -91 |   7.8 |  -98.8 |    data | x_JSqA                                      
+    2022-04-08 16:49:27 | 868.1 |  -93 |     7 | -100.0 |    data | kaj1Lg                                      
+    2022-04-08 16:49:27 | 868.1 |  -93 |   8.8 | -101.8 |    data | 8r_cJQ                                      
+    2022-04-08 16:49:29 | 868.1 | -119 |  -6.2 | -112.8 | witness | ycWNRqQ4-5qwSXR7YpAd-2lURKHm7n5D7eoWQvzLgbY
+    2022-04-08 16:49:33 | 868.3 | -105 |   3.8 | -108.8 |    data | pvlm1g                                      
+    2022-04-08 16:49:35 | 868.3 | -114 |    -7 | -107.0 |    data | iL-tQw                                      
+    2022-04-08 16:49:37 | 868.3 | -110 |  -4.2 | -105.8 |    data | -_J6Cg                                      
+    2022-04-08 16:49:40 | 868.5 | -108 |  -5.2 | -102.8 |    data | 88IFRQ                                      
+    2022-04-08 16:49:43 | 868.5 | -103 |     1 | -104.0 |    data | Fvwvtw                                      
+    2022-04-08 16:49:44 | 868.1 | -107 |     0 | -107.0 |    data | Lnywvg
+
+
 
 ### Export to CSV
 
