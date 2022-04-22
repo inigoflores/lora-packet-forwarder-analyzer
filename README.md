@@ -99,7 +99,7 @@ You can uninstall the service by running:
 
     $ ./processlogs.php -l -s 2022-02-20 -e 2022-02-21 
 
-    Using logs in folder /var/log/packet-forwarder/
+    Using logs in /var/log/packet-forwarder/packet_forwarder.log
 
     Date                | RSSI | Freq  | SNR   | Noise  | Type    | Hash
     -------------------------------------------------------------------------------------------------------------
@@ -145,7 +145,7 @@ You can uninstall the service by running:
 
     $ ./processlogs.php -ld 
     
-    Using logs in /var/log/packet-forwarder/
+    Using logs in /var/log/packet-forwarder/packet_forwarder.log
     
     Date                | Freq  | RSSI | SNR   | Noise  | Type    | Hash
     -------------------------------------------------------------------------------------------------------------
