@@ -6,7 +6,7 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 echo  "Installing required packages"
-apt install ngrep gawk php-cli
+apt install -y ngrep gawk php-cli
 
 # Copy files to system folders
 echo  "Installing service"
