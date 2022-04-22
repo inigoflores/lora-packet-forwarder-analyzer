@@ -46,9 +46,14 @@ foreach (array_keys($opts) as $opt) switch ($opt) {
             $logsPath.="/";
         };
         break;
-
     case 'd':
         $includeDataPackets = true;
+        break;
+    case 's':
+        if (!DateTime::createFromFormat('Y-m-d',  $opts['s'])){
+            exit("Wrong date format");
+        }
+        $startDate = $opts['s'];
         break;
     case 'e':
         if (!DateTime::createFromFormat('Y-m-d',  $opts['e'])){
@@ -174,14 +179,18 @@ function generateStats($packets) {
         exit("No packets found\n");
     }
 
-    $startTime = DateTime::createFromFormat('Y-m-d H:i:s',explode('.',$packets[0]['datetime'])[0]);
-    $endTime = DateTime::createFromFormat('Y-m-d H:i:s',explode('.',end($packets)['datetime'])[0]);
+    //print_r(end($packets));die();
+
+    $startTime = DateTime::createFromFormat('Y-m-d H:i:s',$packets[0]['datetime']);
+    $endTime = DateTime::createFromFormat('Y-m-d H:i:s',end($packets)['datetime']);
+    //print_r($endTime->format("d-m-Y H:i:s") );die;
     $intervalInHours = ($endTime->getTimestamp() - $startTime->getTimestamp())/3600;
 
     $totalWitnesses = 0;
     $totalPackets = sizeOf($packets);
     $lowestWitnessRssi = $lowestPacketRssi = 0;
 
+    $witnessDataByFrequency = [];
     foreach ($packets as $packet){
 
         //echo $packet['freq'] . "\n";
@@ -228,8 +237,10 @@ function generateStats($packets) {
     $totalPackets = str_pad($totalPackets,7, " ", STR_PAD_LEFT);
     $lowestPacketRssi = str_pad($lowestPacketRssi,7," ",STR_PAD_LEFT);
     $lowestWitnessRssi = str_pad($lowestWitnessRssi,7," ",STR_PAD_LEFT);
+    $intervalInHoursStr = round($intervalInHours,1);
 
-    $output = "";
+    $output = "First Packet:        " . $startTime->format("d-m-Y H:i:s") . PHP_EOL;
+    $output.= "Last Packet:         " . $endTime->format("d-m-Y H:i:s") . " ($intervalInHoursStr hours)" . PHP_EOL . PHP_EOL;
     $output.= "Total Witnesses:      $totalWitnesses $totalWitnessesPerHour/hour)\n";
     $output.= "Total Packets:        $totalPackets $totalPacketsPerHour/hour)\n";
     $output.= "Lowest Witness RSSI:  $lowestWitnessRssi dBm\n";
