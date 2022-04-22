@@ -8,7 +8,7 @@
  * @author     Iñigo Flores
  * @copyright  2022 Iñigo Flores
  * @license    https://opensource.org/licenses/MIT  MIT License
- * @version    0.01
+ * @version    0.02
  * @link       https://github.com/inigoflores/lora-packet-forwarder-analyzer
   */
 
@@ -165,6 +165,11 @@ function extractData($logsPath, $startDate = "", $endDate = ""){
         }
     }
 
+    //Sort packets by datetime
+    usort($packets, function($a, $b) {
+        return $a['datetime'] <=> $b['datetime'];
+    });
+
     return $packets;
 }
 
@@ -179,12 +184,14 @@ function generateStats($packets) {
         exit("No packets found\n");
     }
 
-    //print_r(end($packets));die();
+    $systemDate = new DateTime();
 
-    $startTime = DateTime::createFromFormat('Y-m-d H:i:s',$packets[0]['datetime']);
-    $endTime = DateTime::createFromFormat('Y-m-d H:i:s',end($packets)['datetime']);
-    //print_r($endTime->format("d-m-Y H:i:s") );die;
+    $startTime = DateTime::createFromFormat('Y-m-d H:i:s',$packets[0]['datetime'], new DateTimeZone( 'UTC' ));
+    $endTime = DateTime::createFromFormat('Y-m-d H:i:s',end($packets)['datetime'], new DateTimeZone( 'UTC' ));
     $intervalInHours = ($endTime->getTimestamp() - $startTime->getTimestamp())/3600;
+
+    $startTime->setTimezone($systemDate->getTimezone());
+    $endTime->setTimezone($systemDate->getTimezone());
 
     $totalWitnesses = 0;
     $totalPackets = sizeOf($packets);
@@ -278,10 +285,7 @@ function generateStats($packets) {
  */
 function generateList($packets, $includeDataPackets = false) {
 
-    //Sort packets by datetime
-    usort($packets, function($a, $b) {
-        return $a['datetime'] <=> $b['datetime'];
-    });
+    $systemDate = new DateTime();
 
     $header = "Date                | Freq  | RSSI | SNR   | Noise  | Type    | Hash";
     $separator = "-------------------------------------------------------------------------------------------------------------";
@@ -292,12 +296,16 @@ function generateList($packets, $includeDataPackets = false) {
             continue;
         }
 
+        $datetime = DateTime::createFromFormat('Y-m-d H:i:s',$packet['datetime'], new DateTimeZone( 'UTC' ));
+        $datetime->setTimezone($systemDate->getTimezone());
+
         $rssi = str_pad($packet['rssi'], 4, " ", STR_PAD_LEFT);
         $snr = str_pad($packet['snr'], 5, " ", STR_PAD_LEFT);
         $noise = str_pad(number_format((float) ($packet['rssi'] - $packet['snr']),1),6,  " ", STR_PAD_LEFT);
         $type = str_pad($packet['type'],7,  " ", STR_PAD_LEFT);
         $hash = @str_pad($packet['hash'],44, " ", STR_PAD_RIGHT);
-        $output.=@"{$packet['datetime']} | {$packet['freq']} | {$rssi} | {$snr} | {$noise} | $type | $hash" . PHP_EOL;
+        $datetimeStr = $datetime->format("d-m-Y H:i:s");
+        $output.=@"$datetimeStr | {$packet['freq']} | {$rssi} | {$snr} | {$noise} | $type | $hash" . PHP_EOL;
     }
     return $header . PHP_EOL . $separator . PHP_EOL . $output;
 }
@@ -309,11 +317,6 @@ function generateList($packets, $includeDataPackets = false) {
  * @return string
  */
 function generateCSV($packets, $filename = false, $includeDataPackets = false) {
-
-    //Sort packets by datetime
-    usort($packets, function($a, $b) {
-        return $a['datetime'] <=> $b['datetime'];
-    });
 
     $columns = ['Date','Freq','RSSI','SNR','Noise','Type','Hash'];
     $data = array2csv($columns);
