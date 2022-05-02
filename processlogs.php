@@ -121,47 +121,73 @@ function extractData($logsPath, $startDate = "", $endDate = ""){
 
         foreach ($lines as $line) {
 
-            if (!strstr($line,'rxpk')) { //empty line
+            if (!strstr($line,'xpk')) { //empty line
                 continue;
             }
 
-            $temp = explode('{"rxpk":', $line);
-            $temp1 = explode(" ",$temp[0]);
-            $datetime = "{$temp1[0]} $temp1[1]";
+            $jsonStart = strpos($line,"{");
+            $jsonData = substr($line,$jsonStart);
+            //$temp = explode('{"rxpk":', $line);
+            $temp = explode(" ",substr($line,0,$jsonStart));
+            $datetime = "{$temp[0]} $temp[1]";
 
             if ($datetime < $startDate || $datetime > $endDate) {
                 continue;
             }
 
-            $packet = json_decode('{"rxpk":' . $temp[1]);
+            $packet = json_decode($jsonData);
+
 
             if (empty($packet)) {
                  continue;
             }
-            $packet = $packet->rxpk[0];
 
-            if (isset($packet->rssis)) {
-                $rssi = $packet->rssis;
-            } else {
-                $rssi = $packet->rssi;
+            if (isset($packet->rxpk)) {
+                $packet = $packet->rxpk[0];
+                $decodedData = base64_decode($packet->data);
+
+                if (isset($packet->rssis)) {
+                    $rssi = $packet->rssis;
+                } else {
+                    $rssi = $packet->rssi;
+                }
+
+                if (substr($packet->data, 0, 3) == "QDD" && strlen($decodedData) == 52) {
+                    $type = "witness";
+                } else {
+                    $type = "rx data";
+                }
+
+                $snr = $packet->lsnr;
+                $freq = $packet->freq;
+
+            } else if (isset($packet->txpk))  { //Sent beacon
+
+                $packet = $packet->txpk;
+                $decodedData = base64_decode($packet->data);
+
+                $rssi = $packet->powe;
+
+                if (substr($packet->data, 0, 3) == "QDD" && strlen($decodedData) == 52) {
+                    $type = "beacon";
+                } else {
+                    $type = "tx data";
+                }
+                $freq = $packet->freq;
+                $snr = "";
             }
 
-            $decodedData = base64_decode($packet->data);
-            if (substr($packet->data,0,3)=="QDD" && strlen($decodedData)==52) {
-                $type = "witness";
+            if ($type=='witness' || $type=='beacon') {
                 //LongFi packet. The Onion Compact Key starts at position 12 and is 33 bytes long. THanks to @ricopt5 for helping me figure this out.
-                $onionCompactKey = substr($decodedData,12,33);
-                $hash = base64url_encode(hash('sha256',$onionCompactKey,true)); // This is the Onion Key Hash
-
+                $onionCompactKey = substr($decodedData, 12, 33);
+                $hash = base64url_encode(hash('sha256', $onionCompactKey, true)); // This is the Onion Key Hash
             } else {
-                $type = "data";
-                $hash = base64url_encode(hash('crc32b',$decodedData,true)); //
+                $hash = base64url_encode(hash('crc32b', $decodedData, true)); //
             }
+            //
+            $packets[] = compact('datetime', 'freq', 'rssi', 'snr', 'type', 'hash');
 
-            $snr = $packet->lsnr;
-            $freq = $packet->freq;
 
-            $packets[] = compact('datetime', 'freq', 'rssi', 'snr', 'type','hash');
         }
     }
 
@@ -189,19 +215,26 @@ function generateStats($packets) {
     $startTime = DateTime::createFromFormat('Y-m-d H:i:s',$packets[0]['datetime'], new DateTimeZone( 'UTC' ));
     $endTime = DateTime::createFromFormat('Y-m-d H:i:s',end($packets)['datetime'], new DateTimeZone( 'UTC' ));
     $intervalInHours = ($endTime->getTimestamp() - $startTime->getTimestamp())/3600;
+    $intervalInDays = ($endTime->getTimestamp() - $startTime->getTimestamp())/3600/24;
 
     $startTime->setTimezone($systemDate->getTimezone());
     $endTime->setTimezone($systemDate->getTimezone());
 
-    $totalWitnesses = 0;
+    $totalWitnesses = $totalBeacons = 0;
     $totalPackets = sizeOf($packets);
     $lowestWitnessRssi = $lowestPacketRssi = 0;
 
     $witnessDataByFrequency = [];
     foreach ($packets as $packet){
 
-        //echo $packet['freq'] . "\n";
-        //@$freqs["{$packet['freq']}"]++;
+        if ($packet['type']=='tx data') {
+            continue;
+
+        } else if ($packet['type']=='beacon') {
+            $totalBeacons++;
+            continue;
+        }
+
         $packetDataByFrequency["{$packet['freq']}"]['rssi'][] = $packet['rssi'];
         $packetDataByFrequency["{$packet['freq']}"]['snr'][] = $packet['snr'];
 
@@ -236,11 +269,14 @@ function generateStats($packets) {
 
     $totalPacketsPerHour = number_format(round($totalPackets / $intervalInHours,2),2,".","");
     $totalWitnessesPerHour = number_format(round($totalWitnesses / $intervalInHours,2), 2,".","");
+    $totalBeaconsPerDay = number_format(round($totalBeacons / $intervalInDays,2), 2,".","");
 
     $totalPacketsPerHour = str_pad("($totalPacketsPerHour",9, " ", STR_PAD_LEFT);;
     $totalWitnessesPerHour = str_pad("($totalWitnessesPerHour",9, " ", STR_PAD_LEFT);;
+    $totalBeaconsPerDay = str_pad("($totalBeaconsPerDay",9, " ", STR_PAD_LEFT);;
 
     $totalWitnesses = str_pad($totalWitnesses,7, " ", STR_PAD_LEFT);
+    $totalBeacons = str_pad($totalBeacons,7, " ", STR_PAD_LEFT);
     $totalPackets = str_pad($totalPackets,7, " ", STR_PAD_LEFT);
     $lowestPacketRssi = str_pad($lowestPacketRssi,7," ",STR_PAD_LEFT);
     $lowestWitnessRssi = str_pad($lowestWitnessRssi,7," ",STR_PAD_LEFT);
@@ -250,6 +286,7 @@ function generateStats($packets) {
     $output.= "Last Packet:         " . $endTime->format("d-m-Y H:i:s") . " ($intervalInHoursStr hours)" . PHP_EOL . PHP_EOL;
     $output.= "Total Witnesses:      $totalWitnesses $totalWitnessesPerHour/hour)\n";
     $output.= "Total Packets:        $totalPackets $totalPacketsPerHour/hour)\n";
+    $output.= "Total Beacons:        $totalBeacons $totalBeaconsPerDay/day)\n";
     $output.= "Lowest Witness RSSI:  $lowestWitnessRssi dBm\n";
     $output.= "Lowest Packet RSSI:   $lowestPacketRssi dBm\n";
     $output.= "\n";
@@ -292,7 +329,7 @@ function generateList($packets, $includeDataPackets = false) {
     $output="";
 
     foreach ($packets as $packet){
-        if ($packet['type']!="witness" && !$includeDataPackets){
+        if (($packet['type']=="tx data" || $packet['type']=="rx data") && !$includeDataPackets){
             continue;
         }
 
@@ -300,12 +337,19 @@ function generateList($packets, $includeDataPackets = false) {
         $datetime->setTimezone($systemDate->getTimezone());
 
         $rssi = str_pad($packet['rssi'], 4, " ", STR_PAD_LEFT);
-        $snr = str_pad($packet['snr'], 5, " ", STR_PAD_LEFT);
-        $noise = str_pad(number_format((float) ($packet['rssi'] - $packet['snr']),1),6,  " ", STR_PAD_LEFT);
+
+        if ($packet['type']=="witness"||$packet['type']=="rx data"){
+            $noise = number_format((float)($packet['rssi'] - $packet['snr']));
+        } else {
+            $noise = "";
+        }
+
+        $snrStr = str_pad($packet['snr'], 5, " ", STR_PAD_LEFT);
+        $noiseStr = str_pad($noise,  6, " ", STR_PAD_LEFT);
         $type = str_pad($packet['type'],7,  " ", STR_PAD_LEFT);
         $hash = @str_pad($packet['hash'],44, " ", STR_PAD_RIGHT);
         $datetimeStr = $datetime->format("d-m-Y H:i:s");
-        $output.=@"$datetimeStr | {$packet['freq']} | {$rssi} | {$snr} | {$noise} | $type | $hash" . PHP_EOL;
+        $output.=@"$datetimeStr | {$packet['freq']} | {$rssi} | {$snrStr} | {$noiseStr} | $type | $hash" . PHP_EOL;
     }
     return $header . PHP_EOL . $separator . PHP_EOL . $output;
 }
@@ -321,11 +365,15 @@ function generateCSV($packets, $filename = false, $includeDataPackets = false) {
     $columns = ['Date','Freq','RSSI','SNR','Noise','Type','Hash'];
     $data = array2csv($columns);
     foreach ($packets as $packet){
-        if ($packet['type']!="witness" && !$includeDataPackets){
+        if (($packet['type']=="tx data" || $packet['type']=="rx data") && !$includeDataPackets){
             continue;
         }
 
-        $noise = number_format((float) ($packet['rssi'] - $packet['snr']),1);
+        if (!empty($packet['snr'])){
+            $noise = number_format((float) ($packet['rssi'] - $packet['snr']),1);
+        } else {
+            $noise = "";
+        }
         $data.= @array2csv([
             $packet['datetime'], $packet['freq'], $packet['rssi'], $packet['snr'], $noise, $packet['type'], $packet['hash']]
         );

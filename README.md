@@ -67,31 +67,33 @@ You can uninstall the service by running:
 ### Show the stats for all the log files
 
     ./processlogs.php
-    
+
     Using logs in /var/log/packet-forwarder/packet_forwarder.log
     
-    First Packet:        08-04-2022 16:08:07
-    Last Packet:         12-04-2022 16:20:50 (96.2 hours)
+    First Packet:        01-05-2022 16:55:14
+    Last Packet:         02-05-2022 22:16:18 (29.4 hours)
     
-    Total Witnesses:          274     (2.85/hour)
-    Total Packets:         182400  (1895.81/hour)
+    Total Witnesses:           62     (2.11/hour)
+    Total Packets:          10539   (359.07/hour)
+    Total Beacons:              3     (2.45/day)
     Lowest Witness RSSI:     -138 dBm
-    Lowest Packet RSSI:      -138 dBm
+    Lowest Packet RSSI:      -140 dBm
     
           -----------------------------------------------------------------------------  
           |        Witnesses                    |          All Packets              
           -----------------------------------------------------------------------------  
     Freq  | Num  | RSSI Avg | RSSI Min | SNR    | Num    | RSSI Avg | RSSI Min | SNR
     -----------------------------------------------------------------------------------  
-    867.1 |   40 |  -115.73 |  -135.00 |  -4.30 |   1081 |  -121.95 |  -136.00 |  -8.96
-    867.3 |   43 |  -114.23 |  -132.00 |  -5.47 |   1029 |  -121.24 |  -134.00 |  -9.33
-    867.5 |   25 |  -101.52 |  -121.00 |  -0.24 |    498 |  -117.41 |  -135.00 |  -9.51
-    867.7 |   42 |  -116.79 |  -138.00 |  -5.21 |    991 |  -121.41 |  -138.00 |  -9.04
-    867.9 |   50 |  -116.08 |  -137.00 |  -5.40 |   1154 |  -122.76 |  -137.00 |  -9.13
-    868.1 |   29 |  -113.24 |  -132.00 |  -6.38 |  49002 |  -107.24 |  -135.00 |  -1.50
-    868.3 |   20 |  -105.55 |  -121.00 |  -5.18 |  81287 |  -109.99 |  -130.00 |  -5.33
-    868.5 |   25 |  -107.64 |  -125.00 |  -5.64 |  47358 |  -106.89 |  -130.00 |  -3.88
+    867.1 |    3 |  -127.33 |  -138.00 | -12.23 |     25 |  -131.16 |  -139.00 | -16.90
+    867.3 |   10 |  -122.50 |  -137.00 | -10.39 |     36 |  -128.36 |  -140.00 | -14.94
+    867.5 |    8 |  -115.88 |  -132.00 |  -4.91 |     21 |  -123.48 |  -135.00 | -11.77
+    867.7 |   12 |  -111.58 |  -135.00 |  -7.19 |     36 |  -123.97 |  -138.00 | -13.01
+    867.9 |   11 |  -105.45 |  -134.00 |  -5.24 |     38 |  -124.16 |  -138.00 | -13.99
+    868.1 |    5 |  -109.60 |  -131.00 |  -7.10 |   6519 |  -115.87 |  -137.00 |  -2.64
+    868.3 |   10 |  -114.30 |  -131.00 |  -7.23 |   3718 |  -119.28 |  -136.00 |  -7.15
+    868.5 |    3 |  -110.67 |  -111.00 |  -9.03 |      8 |  -116.25 |  -121.00 |  -9.46
     ------------------------------------------------------------------------------------  
+
 
 
 
@@ -103,42 +105,39 @@ You can uninstall the service by running:
 
     Date                | RSSI | Freq  | SNR   | Noise  | Type    | Hash
     -------------------------------------------------------------------------------------------------------------
-    2022-04-08 16:49:29 | -119 | 868.1 |  -6.2 | -112.8 | witness | ycWNRqQ4-5qwSXR7YpAd-2lURKHm7n5D7eoWQvzLgbY
-    2022-04-08 17:15:29 |  -94 | 868.1 |  10.5 | -104.5 | witness | JJgZlfvz2kK_ZJY4-Mbj93JDxx4RZdIZyJQjWLeO-uc
-    2022-04-08 17:26:20 | -126 | 867.7 | -11.5 | -114.5 | witness | qtoR1Q4kW_FWlvHjxkl8JbuHl4auUPaS1i_VvcerPsI
-    2022-04-08 17:39:09 | -127 | 867.7 |   -13 | -114.0 | witness | ouvUWjieCan58f_Cc89GzyOpQ_ccGx4FvQRPGrQrmr4
-    2022-04-08 17:41:17 |  -80 | 867.9 |   9.5 |  -89.5 | witness | TMfkdMNdzoV_VpzP6ihLl_mcHmV5gk8rQMCv3sNOZ84
-    2022-04-08 17:52:22 | -117 | 868.3 | -15.2 | -101.8 | witness | nTr3nNiBbwFNoUwogs1YOHL-UGPfT3sR839OIocSfiU
-    2022-04-08 18:27:35 | -117 | 868.5 | -11.8 | -105.2 | witness | 4jMowRY28Nfe01ZVRSlnLa_mMLqTrxdqw1GtyFJ9W8k
-    2022-04-08 18:27:57 | -103 | 867.3 |   6.5 | -109.5 | witness | uZKV6Y4fUiExw4ZKvuPoCLYOoouUzs1HD1yPqwkMdOE
-    2022-04-08 19:13:07 | -119 | 867.1 |  -7.2 | -111.8 | witness | s5bjhrFMbvhvBafqJBiAtPTD2CLLhxl-qsQfZPkD85c
-    2022-04-08 19:18:31 | -114 | 867.7 |  -2.5 | -111.5 | witness | wKB5psByGlO-gZDpAR8r3UmTjzSgiEPQaxvjk2IMErc
-    2022-04-08 19:20:30 |  -99 | 868.1 |   8.2 | -107.2 | witness | zxEzGghhqQaaf_OoYPbsLpu33853lwrqtaWw5KY1x0Q
-    2022-04-08 19:34:37 | -118 | 867.9 |  -4.2 | -113.8 | witness | zbWn5Hp5tEtOGLDFBHmX6HJSQSmRq0ORAYxuj9f3nhU
-    2022-04-08 19:37:21 | -121 | 867.9 |    -7 | -114.0 | witness | pR_qugoiZp8sLoDuQ0-vitdZuvxqYL18fYEXVRIlraM
-    2022-04-08 19:38:37 |  -87 | 867.7 |  10.5 |  -97.5 | witness | pUn-zdMOoc1awQJlXbKNITnxMZeBpRfvopg-2wn0KAA
-    2022-04-08 19:58:31 | -126 | 867.9 | -11.2 | -114.8 | witness | V_4ObJxs20yb_DcGwINpOiaNDtQ-6Sw8-XxOAzI6868
-    2022-04-08 20:21:42 | -108 | 867.9 |   2.8 | -110.8 | witness | -h_t-o6difeFvzjOHRaKTFcA7ke5mtH2_s8Shou3lWQ
-    2022-04-08 20:50:07 | -121 | 868.3 |   -19 | -102.0 | witness | C8Y86x0jYWrTbOx7V_OLH61oBeCzQ7JzwxjeJaWMQvI
-    2022-04-08 21:30:18 | -119 | 867.5 | -11.2 | -107.8 | witness | sIsmA5mmYu2ah8mB9m-IOwrTM19BeIZFO3VNApxrbJU
-    2022-04-08 21:42:23 |  -60 | 867.5 |     9 |  -69.0 | witness | 2A6yyeKn8JMIIUTzSARWLKUMXlUbyAeRGLvu3242d48
-    2022-04-08 21:54:34 | -103 | 867.7 |   9.2 | -112.2 | witness | 4-vw5lPC1033gsrmDRknK7cmyW9Bu9EM56kFZuq1IGk
-    2022-04-08 22:34:15 | -129 | 868.1 | -18.2 | -110.8 | witness | D9NpMoKzcaseIvU5JX1UatWzaOwxHVmu1npUFXzxXIs
-    2022-04-08 22:42:51 | -105 | 867.1 |     6 | -111.0 | witness | Y_a5HE9kyFbhp90c9CGqrPFsFC2gAbI4NkBEOZ4FYYQ
-    2022-04-08 23:31:00 | -109 | 868.3 | -10.8 |  -98.2 | witness | sdxOp3REWcC8Mb6-M_RLntdEMNeiv1-VVfhPgzl4UbU
-    2022-04-08 23:38:59 | -126 | 867.3 | -11.8 | -114.2 | witness | dq7B03tc_HlURg6VqzMQ8uM-0GR4k8g6yRhNTMfDJAk
-    2022-04-09 00:14:26 |  -99 | 867.7 |     5 | -104.0 | witness | c1EsqLzUx2B7VW7-Hcbe_JZ--ijXiGCS-kRLLpb_3e8
-    2022-04-09 00:28:04 | -129 | 867.9 | -13.8 | -115.2 | witness | DE-oi3KvotNT9ysUc1FwMMzzwZqfKZRQ1sPoCYcRvLE
-    2022-04-09 00:33:08 |   -7 | 867.5 |  10.8 |  -17.8 | witness | s_pJJVOUcqiRhOf4uw4Q0qv0mQPApyNlK0JMqHGGmHk
-    2022-04-09 01:47:46 | -124 | 868.5 |   -17 | -107.0 | witness | y2HTCIMKJtZZv_A4cXCIB-HUEAPj3iyy0OepakpHGGs
-    2022-04-09 01:49:21 | -109 | 867.7 |   4.8 | -113.8 | witness | ZsudG_3Z8ofAXdD2jQqvnSkZGykwhwbq9ELX4VR-YFI
-    2022-04-09 02:07:51 | -107 | 867.1 |   2.2 | -109.2 | witness | f0vTrpEIZRnB1iRvMXu1Tl70b9iI5jufaivg0vb9K2g
-    2022-04-09 02:15:20 | -105 | 867.3 |   5.2 | -110.2 | witness | -NuZQllBe97vMGlfQLzDrUHw7s4vQLMa8aH8mpV6taE
-    2022-04-09 02:22:00 | -119 | 867.3 |  -5.8 | -113.2 | witness | iyNv8NiXgpwxmOgXkRSkRB2EJ13umS26S1m8BQZSg9U
-    2022-04-09 02:24:59 | -114 | 867.1 |  -2.5 | -111.5 | witness | sfZr2sv-PSldBmtaPuYq9CnwItp-MM8Dq9lUyNlpBj0
-    2022-04-09 02:26:02 |  -95 | 868.5 |   5.8 | -100.8 | witness | 8Pwq2ny6x5PrleEGZtXAl3oYmZjB_sze4fGtCaro8ZU
-    2022-04-09 02:36:16 | -120 | 867.7 |    -6 | -114.0 | witness | GIU2to9g6mMkmWmA-yDkm5jHw1uSqxYoLRbePBf0cSc
-    2022-04-09 02:44:01 | -122 | 867.9 |  -7.2 | -114.8 | witness | U2mBEjAs8Qum3Pi8Iom-N7jzl46TFnuBODNAleFosm0
+    02-05-2022 02:02:39 | 867.9 | -104 |     3 |   -107 | witness | eOLj-vzFUyYS8yCFw-UN8XV7ziY48rn2rOXXn5YtdAc
+    02-05-2022 02:21:46 | 867.7 | -122 | -11.8 |   -110 | witness | QG6LVwQJrCNfHuj7auXZJ2G3k85GEACg7RPqorWIcGU
+    02-05-2022 02:23:09 | 867.3 | -120 |  -9.8 |   -110 | witness | zGRhwbCmlZTOUz68MzSvqNsaeZB1LJXezpwBFSfxvS4
+    02-05-2022 03:24:22 | 867.9 | -133 |   -17 |   -116 | witness | XsoOPQLWURiE5ABO8GQF7Tv455rmRmW31aZaL6gwAYY
+    02-05-2022 03:24:24 | 868.1 |  -54 |   7.2 |    -61 | witness | k71Tky010RNUZRFPyWzv9Hl0TMs-aV3f7lEc1upuDlM
+    02-05-2022 03:54:32 | 867.1 | -127 | -11.5 |   -116 | witness | Bg4WZsh5BpcREca86XNy2Un-01cFgYt1YBIlZtQNfs8
+    02-05-2022 04:14:24 | 867.5 |   12 |       |        |  beacon | zw54wm5n1cfDDaTxvgVs5kbluXvAtE0PWa04XhITcd8
+    02-05-2022 04:14:28 | 868.5 | -110 | -10.8 |    -99 | witness | zw54wm5n1cfDDaTxvgVs5kbluXvAtE0PWa04XhITcd8
+    02-05-2022 04:16:20 | 868.1 | -119 |  -5.2 |   -114 | witness | hLI3I-C860X_HU0Iabnm-wzpScIqOPdxkqJ7ah5jv3w
+    02-05-2022 04:26:22 | 867.9 |  -20 |     8 |    -28 | witness | JapFVXzV5TGzksRXITCE2BgbiZKOCqVjsiavxI3zN7o
+    02-05-2022 04:41:44 | 867.3 | -120 |  -5.5 |   -115 | witness | c7S2HgxdbwfrB9ZuUO9pBeAlYhFXRspADpgKi0x-1Fw
+    02-05-2022 05:07:17 | 867.1 | -117 |  -2.2 |   -115 | witness | 0zBHdkEozOXH_cY6Dlo7Gg7orhIacb7ppAlns3CdVVQ
+    02-05-2022 05:40:54 | 867.3 | -103 |   4.5 |   -108 | witness | PrjYNiIi1_dcAQpT7i4bf2mHHJxslk36DhqTk9Mpzkc
+    02-05-2022 05:51:48 | 867.5 | -110 |   3.5 |   -114 | witness | QM0XxmbdC7H9jum9jYWblZmxSad5ONtKXp7IKJVvoZ0
+    02-05-2022 06:09:28 | 867.9 | -108 |   3.5 |   -112 | witness | 87yRNCuNYeT7_3qwwOZjY5P9N2SlWDlACirKmepXTnY
+    02-05-2022 06:34:15 | 868.3 | -105 |     3 |   -108 | witness | TuqB36-xmFlpDlO-xYVXTvaZhkSgP3PmrdmE-sm6Ggc
+    02-05-2022 07:05:33 | 867.5 |   12 |       |        |  beacon | WvFEb8dpVchq52FIJrfjrOq9VLGwRaaaURm4kZpK7E0
+    02-05-2022 07:05:37 | 868.5 | -111 | -11.8 |    -99 | witness | WvFEb8dpVchq52FIJrfjrOq9VLGwRaaaURm4kZpK7E0
+    02-05-2022 07:11:28 | 867.3 | -135 |   -21 |   -114 | witness | 5Z4bW8KVzHTlMKPIc9YXiO6towU5q_ZEK-xn6cn4yck
+    02-05-2022 07:32:25 | 867.5 | -132 | -13.8 |   -118 | witness | ppRLQ76JRvBRdDO9Fru6CCiCtjoDZtTsY1XvMfo4h2Y
+    02-05-2022 07:47:29 | 868.5 | -111 |  -4.5 |   -107 | witness | FD_wIdC2tIs5SamWA_JeMk0LkEVpu69zkRNvTtoYa3I
+    02-05-2022 08:11:08 | 867.3 | -133 | -15.5 |   -118 | witness | oMZvUH1ciWhBHhPar_Ww3wzKHzQiKgsir-ergw441B8
+    02-05-2022 08:39:42 | 867.3 | -137 | -21.2 |   -116 | witness | 5ux3EC3wYBM2MOAurgGyctNz-nC_WvWjg5YRRUk3ZB8
+    02-05-2022 09:31:40 | 867.7 |  -55 |   8.5 |    -64 | witness | V44-ihwqsHq9JJvA9yoKQ1P1mSK9zSR7lnWDNvXSRDM
+    02-05-2022 09:35:35 | 868.3 | -129 | -16.8 |   -112 | witness | zpdAH3Cm4h7tLlDNYURvqr5uw8DZ44Ze025MFkIZmdQ
+    02-05-2022 10:00:16 | 868.3 | -122 |    -9 |   -113 | witness | FCM6r2kDA9neDs1X2gzceQSz59JjtFuUbpduTwNOw-o
+    02-05-2022 10:11:25 | 868.3 | -115 |  -1.5 |   -114 | witness | rBw5Bkzshllw4F0gnvnp5W_JTnA8INGDy0mz0FGt_rk
+    02-05-2022 10:41:21 | 867.3 | -128 | -18.8 |   -109 | witness | MTTtdxkZihMylvEZ-3B0I2lITVJPYNxg9ETBb52rHps
+    02-05-2022 11:10:03 | 867.9 |  -55 |   8.2 |    -63 | witness | tqdE64tptZwyTjRzra3uuGALNrBLqB5ZjDghmuCNfyc
+    02-05-2022 11:57:12 | 867.7 |  -56 |   7.8 |    -64 | witness | yUOWGy3ajJoNUKa6uFpFkuGCV3LClGYDId-DaF1SNmU
+    02-05-2022 12:22:40 | 867.7 | -122 | -11.5 |   -111 | witness | h-LvjOMlWD8NUa_cDZ6RFfTsoTJw3ss8RbsUemLSY9Q
+    02-05-2022 13:00:13 | 867.7 | -110 |  -0.5 |   -110 | witness | je08YOT65Wkt-zzAHvJbMCvAbmTWOLg5WNj799mj8Ak
+
 
 
 ## Show list of all packets received
@@ -149,35 +148,33 @@ You can uninstall the service by running:
     
     Date                | Freq  | RSSI | SNR   | Noise  | Type    | Hash
     -------------------------------------------------------------------------------------------------------------
-    2022-04-08 16:49:17 | 868.1 | -108 |  -3.2 | -104.8 |    data | LWCAGQ                                      
-    2022-04-08 16:49:17 | 868.3 | -113 |    -6 | -107.0 |    data | spbt8g                                      
-    2022-04-08 16:49:17 | 868.3 | -112 |  -4.2 | -107.8 |    data | spbt8g                                      
-    2022-04-08 16:49:18 | 868.3 | -105 |   0.2 | -105.2 |    data | LWCAGQ                                      
-    2022-04-08 16:49:18 | 868.3 | -102 |   2.8 | -104.8 |    data | LvT-LA                                      
-    2022-04-08 16:49:18 | 868.5 | -105 |    -2 | -103.0 |    data | LWCAGQ                                      
-    2022-04-08 16:49:19 | 868.1 | -110 |  -3.5 | -106.5 |    data | LWCAGQ                                      
-    2022-04-08 16:49:20 | 868.3 | -106 |  -1.8 | -104.2 |    data | LWCAGQ                                      
-    2022-04-08 16:49:20 | 868.1 |  -91 |   7.5 |  -98.5 |    data | G-geEA                                      
-    2022-04-08 16:49:20 | 868.1 |  -93 |   7.8 | -100.8 |    data | G-geEA                                      
-    2022-04-08 16:49:20 | 868.1 |  -91 |   7.8 |  -98.8 |    data | TbK5lg                                      
-    2022-04-08 16:49:20 | 868.5 | -107 |  -2.2 | -104.8 |    data | LWCAGQ                                      
-    2022-04-08 16:49:20 | 868.1 |  -91 |   8.2 |  -99.2 |    data | N9n91w                                      
-    2022-04-08 16:49:23 | 868.3 | -110 |  -6.5 | -103.5 |    data | _F4QpQ                                      
-    2022-04-08 16:49:24 | 868.1 | -115 |    -2 | -113.0 |    data | 84SyvA                                      
-    2022-04-08 16:49:25 | 868.3 | -114 |    -6 | -108.0 |    data | 84SyvA                                      
-    2022-04-08 16:49:25 | 868.3 | -109 |  -2.8 | -106.2 |    data | J64Htw                                      
-    2022-04-08 16:49:26 | 868.1 | -118 |  -5.5 | -112.5 |    data | 84SyvA                                      
-    2022-04-08 16:49:26 | 868.1 |  -93 |   7.8 | -100.8 |    data | x_JSqA                                      
-    2022-04-08 16:49:27 | 868.1 |  -91 |   7.8 |  -98.8 |    data | x_JSqA                                      
-    2022-04-08 16:49:27 | 868.1 |  -93 |     7 | -100.0 |    data | kaj1Lg                                      
-    2022-04-08 16:49:27 | 868.1 |  -93 |   8.8 | -101.8 |    data | 8r_cJQ                                      
-    2022-04-08 16:49:29 | 868.1 | -119 |  -6.2 | -112.8 | witness | ycWNRqQ4-5qwSXR7YpAd-2lURKHm7n5D7eoWQvzLgbY
-    2022-04-08 16:49:33 | 868.3 | -105 |   3.8 | -108.8 |    data | pvlm1g                                      
-    2022-04-08 16:49:35 | 868.3 | -114 |    -7 | -107.0 |    data | iL-tQw                                      
-    2022-04-08 16:49:37 | 868.3 | -110 |  -4.2 | -105.8 |    data | -_J6Cg                                      
-    2022-04-08 16:49:40 | 868.5 | -108 |  -5.2 | -102.8 |    data | 88IFRQ                                      
-    2022-04-08 16:49:43 | 868.5 | -103 |     1 | -104.0 |    data | Fvwvtw                                      
-    2022-04-08 16:49:44 | 868.1 | -107 |     0 | -107.0 |    data | Lnywvg
+02-05-2022 02:23:09 | 867.3 | -120 |  -9.8 |   -110 | witness | zGRhwbCmlZTOUz68MzSvqNsaeZB1LJXezpwBFSfxvS4
+02-05-2022 03:24:22 | 867.9 | -133 |   -17 |   -116 | witness | XsoOPQLWURiE5ABO8GQF7Tv455rmRmW31aZaL6gwAYY
+02-05-2022 03:24:24 | 868.1 |  -54 |   7.2 |    -61 | witness | k71Tky010RNUZRFPyWzv9Hl0TMs-aV3f7lEc1upuDlM
+02-05-2022 03:54:32 | 867.1 | -127 | -11.5 |   -116 | witness | Bg4WZsh5BpcREca86XNy2Un-01cFgYt1YBIlZtQNfs8
+02-05-2022 04:14:24 | 867.5 |   12 |       |        |  beacon | zw54wm5n1cfDDaTxvgVs5kbluXvAtE0PWa04XhITcd8
+02-05-2022 04:14:28 | 868.5 | -110 | -10.8 |    -99 | witness | zw54wm5n1cfDDaTxvgVs5kbluXvAtE0PWa04XhITcd8
+02-05-2022 04:16:20 | 868.1 | -119 |  -5.2 |   -114 | witness | hLI3I-C860X_HU0Iabnm-wzpScIqOPdxkqJ7ah5jv3w
+02-05-2022 04:26:22 | 867.9 |  -20 |     8 |    -28 | witness | JapFVXzV5TGzksRXITCE2BgbiZKOCqVjsiavxI3zN7o
+02-05-2022 04:41:44 | 867.3 | -120 |  -5.5 |   -115 | witness | c7S2HgxdbwfrB9ZuUO9pBeAlYhFXRspADpgKi0x-1Fw
+02-05-2022 05:07:17 | 867.1 | -117 |  -2.2 |   -115 | witness | 0zBHdkEozOXH_cY6Dlo7Gg7orhIacb7ppAlns3CdVVQ
+02-05-2022 05:40:54 | 867.3 | -103 |   4.5 |   -108 | witness | PrjYNiIi1_dcAQpT7i4bf2mHHJxslk36DhqTk9Mpzkc
+02-05-2022 05:51:48 | 867.5 | -110 |   3.5 |   -114 | witness | QM0XxmbdC7H9jum9jYWblZmxSad5ONtKXp7IKJVvoZ0
+02-05-2022 06:09:28 | 867.9 | -108 |   3.5 |   -112 | witness | 87yRNCuNYeT7_3qwwOZjY5P9N2SlWDlACirKmepXTnY
+02-05-2022 06:34:15 | 868.3 | -105 |     3 |   -108 | witness | TuqB36-xmFlpDlO-xYVXTvaZhkSgP3PmrdmE-sm6Ggc
+02-05-2022 07:05:33 | 867.5 |   12 |       |        |  beacon | WvFEb8dpVchq52FIJrfjrOq9VLGwRaaaURm4kZpK7E0
+02-05-2022 07:05:37 | 868.5 | -111 | -11.8 |    -99 | witness | WvFEb8dpVchq52FIJrfjrOq9VLGwRaaaURm4kZpK7E0
+02-05-2022 07:11:28 | 867.3 | -135 |   -21 |   -114 | witness | 5Z4bW8KVzHTlMKPIc9YXiO6towU5q_ZEK-xn6cn4yck
+02-05-2022 07:32:25 | 867.5 | -132 | -13.8 |   -118 | witness | ppRLQ76JRvBRdDO9Fru6CCiCtjoDZtTsY1XvMfo4h2Y
+02-05-2022 07:47:29 | 868.5 | -111 |  -4.5 |   -107 | witness | FD_wIdC2tIs5SamWA_JeMk0LkEVpu69zkRNvTtoYa3I
+02-05-2022 08:11:08 | 867.3 | -133 | -15.5 |   -118 | witness | oMZvUH1ciWhBHhPar_Ww3wzKHzQiKgsir-ergw441B8
+02-05-2022 08:39:42 | 867.3 | -137 | -21.2 |   -116 | witness | 5ux3EC3wYBM2MOAurgGyctNz-nC_WvWjg5YRRUk3ZB8
+02-05-2022 09:31:40 | 867.7 |  -55 |   8.5 |    -64 | witness | V44-ihwqsHq9JJvA9yoKQ1P1mSK9zSR7lnWDNvXSRDM
+02-05-2022 09:35:35 | 868.3 | -129 | -16.8 |   -112 | witness | zpdAH3Cm4h7tLlDNYURvqr5uw8DZ44Ze025MFkIZmdQ
+02-05-2022 10:00:16 | 868.3 | -122 |    -9 |   -113 | witness | FCM6r2kDA9neDs1X2gzceQSz59JjtFuUbpduTwNOw-o
+02-05-2022 10:11:25 | 868.3 | -115 |  -1.5 |   -114 | witness | rBw5Bkzshllw4F0gnvnp5W_JTnA8INGDy0mz0FGt_rk
+02-05-2022 10:41:21 | 867.3 | -128 | -18.8 |   -109 | witness | MTTtdxkZihMylvEZ-3B0I2lITVJPYNxg9ETBb52rHps
+
 
 
 
