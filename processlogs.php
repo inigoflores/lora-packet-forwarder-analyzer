@@ -121,7 +121,7 @@ function extractData($logsPath, $startDate = "", $endDate = ""){
 
         foreach ($lines as $line) {
 
-            if (!strstr($line,'xpk')) { //empty line
+            if (!strpos($line,'xpk"')) { //empty line
                 continue;
             }
 
