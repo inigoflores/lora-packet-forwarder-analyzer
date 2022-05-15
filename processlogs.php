@@ -20,11 +20,11 @@ $endDate = "2030-01-01";
 $includeDataPackets = false;
 
 // Command line options
-$options = ["d","p:","s:","e:","a","l","c::"];
+$options = ["d","p:","s:","e:","c::","a","l","i"];
 $opts = getopt(implode("",$options));
 
 // Defaults to stats when called
-if (!(isset($opts['l']) || isset($opts['c']))) {
+if (!(isset($opts['l']) || isset($opts['c']) || isset($opts['i']))) {
     $opts['a']=true;
 }
 
@@ -37,6 +37,8 @@ uksort($opts, function ($a, $b) use ($options) {
     $pos_b = array_search($b, $options);
     return $pos_a - $pos_b;
 });
+
+$csvOutput = false;
 
 // Handle command line arguments
 foreach (array_keys($opts) as $opt) switch ($opt) {
@@ -61,23 +63,35 @@ foreach (array_keys($opts) as $opt) switch ($opt) {
         }
         $endDate = $opts['e'];
         break;
+    case 'c':
+        $csvOutput = true;
+        $filename = $opts['c'];
+        break;
     case 'a':
         echo "\nUsing logs in {$logsPath}\n\n";
         $packets = extractData($logsPath,$startDate,$endDate);
         echo generateStats($packets);
         exit(1);
-
     case 'l':
         echo "\nUsing logs in {$logsPath}\n\n";
         $packets = extractData($logsPath,$startDate,$endDate);
-        echo generateList($packets,$includeDataPackets);
+        if (!$csvOutput) {
+            echo generateList($packets,$includeDataPackets);
+        } else {
+            echo generateCSV($packets,$filename,$includeDataPackets);
+        }
         exit(1);
-        
-    case 'c':
+    case 'i':
+        echo "\nUsing logs in {$logsPath}\n\n";
         $packets = extractData($logsPath,$startDate,$endDate);
-        $filename = $opts['c'];
-        echo generateCSV($packets,$filename,$includeDataPackets);
-        exit(1);        
+        $histogram = generateHistogramData($packets,$includeDataPackets);
+        if (!$csvOutput) {
+            echo generateHistogramASCIIChart($histogram,$includeDataPackets);
+        } else {
+            echo generateCSVHistogram($histogram,$filename,$includeDataPackets);
+        }
+        exit(1);
+
 }
 
 
@@ -323,6 +337,7 @@ function generateStats($packets) {
 function generateList($packets, $includeDataPackets = false) {
 
     $systemDate = new DateTime();
+    $utc = new DateTimeZone( 'UTC' );
 
     $header = "Date                | Freq  | RSSI | SNR   | Noise  | Type    | Hash";
     $separator = "-------------------------------------------------------------------------------------------------------------";
@@ -333,7 +348,7 @@ function generateList($packets, $includeDataPackets = false) {
             continue;
         }
 
-        $datetime = DateTime::createFromFormat('Y-m-d H:i:s',$packet['datetime'], new DateTimeZone( 'UTC' ));
+        $datetime = DateTime::createFromFormat('Y-m-d H:i:s',$packet['datetime'], $utc);
         $datetime->setTimezone($systemDate->getTimezone());
 
         $rssi = str_pad($packet['rssi'], 4, " ", STR_PAD_LEFT);
@@ -375,18 +390,92 @@ function generateCSV($packets, $filename = false, $includeDataPackets = false) {
             $noise = "";
         }
         $data.= @array2csv([
-            $packet['datetime'], $packet['freq'], $packet['rssi'], $packet['snr'], $noise, $packet['type'], $packet['hash']]
+                $packet['datetime'], $packet['freq'], $packet['rssi'], $packet['snr'], $noise, $packet['type'], $packet['hash']]
         );
     }
 
     if ($filename) {
-        $data = "SEP=;" . $data;
+        $data = "SEP=," . PHP_EOL . $data;
         file_put_contents($filename,$data);
         return "Data saved to $filename\n";
     }
 
     return $data;
+}
 
+
+/**
+ * @param $packets
+ * @param $includeDataPackets
+ * @return string
+ */
+function generateHistogramData($packets, $includeDataPackets = false) {
+
+    $systemDate = new DateTime();
+    $utc = new DateTimeZone( 'UTC' );
+    $histogram=[];
+
+    foreach ($packets as $packet){
+        if (($packet['type']=="tx data" || $packet['type']=="rx data") && !$includeDataPackets){
+            continue;
+        }
+
+        $datetime = DateTime::createFromFormat('Y-m-d H:i:s',$packet['datetime'], $utc);
+        $datetime->setTimezone($systemDate->getTimezone());
+
+        $hour = (int) ($datetime->getTimestamp()/3600)*3600;
+        $datetime->setTimestamp($hour);
+        $hour = $datetime->format("d-m-Y H:i");
+        //echo $hour . "\n";
+        $histogram[$hour] = @$histogram[$hour] + 1;
+
+    }
+    return $histogram;
+}
+
+/**
+ * @param $packets
+ * @param $includeDataPackets
+ * @return string
+ */
+function generateHistogramASCIIChart($histogramData)
+{
+    $output = "";
+
+    $maxValue = max($histogramData);
+
+    foreach ($histogramData as $date => $number){
+        $output.= "$date ";
+        for ($i=0; $i < $number/$maxValue*80; $i++) {
+            $output.= "■";
+        }
+        $output.= " $number" . PHP_EOL;
+    }
+
+    return $output;
+}
+
+/**
+ * @param $packets
+ * @param $includeDataPackets
+ * @return string
+ */
+function generateCSVHistogram($histogramData, $filename = false) {
+
+    $columns = ['Date', 'Items'];
+
+    $data = array2csv($columns);
+    foreach ($histogramData as $date => $number){
+        $data.= @array2csv([$date,$number]);
+    }
+
+    if ($filename) {
+        $data = "SEP=," . PHP_EOL . $data;
+        file_put_contents($filename,$data);
+        return "Data saved to $filename\n";
+    }
+
+    return $data;
 }
 
 /**
