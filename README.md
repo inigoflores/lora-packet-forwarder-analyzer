@@ -32,13 +32,13 @@ You can clone the repository with:
 
 To install the service, run:
 
-    ./install.sh
+    sudo ./install.sh
 
 Packet logging will start straight away in /var/log/packet-forwarder/packet_forwarder.log  
 
 You can uninstall the service by running:
 
-    ./uninstall.sh
+    sudo ./uninstall.sh
 
 ## Tool usage
 
