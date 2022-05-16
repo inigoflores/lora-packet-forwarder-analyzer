@@ -440,13 +440,16 @@ function generateHistogramData($packets, $includeDataPackets = false) {
  */
 function generateHistogramASCIIChart($histogramData)
 {
+
+    $cols = exec("tput cols") - 22;
+
     $output = "";
 
     $maxValue = max($histogramData);
 
     foreach ($histogramData as $date => $number){
         $output.= "$date ";
-        for ($i=0; $i < $number/$maxValue*80; $i++) {
+        for ($i=0; $i < $number/$maxValue*$cols; $i++) {
             $output.= "■";
         }
         $output.= " $number" . PHP_EOL;
