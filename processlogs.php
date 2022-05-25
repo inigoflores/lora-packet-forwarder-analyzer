@@ -157,26 +157,30 @@ function extractData($logsPath, $startDate = "", $endDate = ""){
             }
 
             if (isset($packet->rxpk)) {
-                $packet = $packet->rxpk[0];
-                $decodedData = base64_decode($packet->data);
+                foreach ($packet->rxpk as $packet) {
+                    $decodedData = base64_decode($packet->data);
 
-                if (isset($packet->rssis)) {
-                    $rssi = $packet->rssis;
-                } else {
-                    $rssi = $packet->rssi;
+                    if (isset($packet->rssis)) {
+                        $rssi = $packet->rssis;
+                    } else {
+                        $rssi = $packet->rssi;
+                    }
+
+                    if (substr($packet->data, 0, 3) == "QDD" && strlen($decodedData) == 52) {
+                        $type = "witness";
+                        //LongFi packet. The Onion Compact Key starts at position 12 and is 33 bytes long. THanks to @ricopt5 for helping me figure this out.
+                        $onionCompactKey = substr($decodedData, 12, 33);
+                        $hash = base64url_encode(hash('sha256', $onionCompactKey, true)); // This is the Onion Key Hash
+                    } else {
+                        $type = "rx data";
+                        $hash = base64url_encode(hash('crc32b', $decodedData, true)); //
+                    }
+
+                    $snr = $packet->lsnr;
+                    $freq = $packet->freq;
+                    $packets[] = compact('datetime', 'freq', 'rssi', 'snr', 'type', 'hash');
                 }
-
-                if (substr($packet->data, 0, 3) == "QDD" && strlen($decodedData) == 52) {
-                    $type = "witness";
-                } else {
-                    $type = "rx data";
-                }
-
-                $snr = $packet->lsnr;
-                $freq = $packet->freq;
-
             } else if (isset($packet->txpk))  { //Sent beacon
-
                 $packet = $packet->txpk;
                 $decodedData = base64_decode($packet->data);
 
@@ -184,24 +188,17 @@ function extractData($logsPath, $startDate = "", $endDate = ""){
 
                 if (substr($packet->data, 0, 3) == "QDD" && strlen($decodedData) == 52) {
                     $type = "beacon";
+                    $onionCompactKey = substr($decodedData, 12, 33);
+                    $hash = base64url_encode(hash('sha256', $onionCompactKey, true)); // This is the Onion Key Hash
                 } else {
                     $type = "tx data";
+                    $hash = base64url_encode(hash('crc32b', $decodedData, true)); //
+
                 }
                 $freq = $packet->freq;
                 $snr = "";
+                $packets[] = compact('datetime', 'freq', 'rssi', 'snr', 'type', 'hash');
             }
-
-            if ($type=='witness' || $type=='beacon') {
-                //LongFi packet. The Onion Compact Key starts at position 12 and is 33 bytes long. THanks to @ricopt5 for helping me figure this out.
-                $onionCompactKey = substr($decodedData, 12, 33);
-                $hash = base64url_encode(hash('sha256', $onionCompactKey, true)); // This is the Onion Key Hash
-            } else {
-                $hash = base64url_encode(hash('crc32b', $decodedData, true)); //
-            }
-            //
-            $packets[] = compact('datetime', 'freq', 'rssi', 'snr', 'type', 'hash');
-
-
         }
     }
 
