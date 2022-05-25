@@ -178,7 +178,8 @@ function extractData($logsPath, $startDate = "", $endDate = ""){
 
                     $snr = $packet->lsnr;
                     $freq = $packet->freq;
-                    $packets[] = compact('datetime', 'freq', 'rssi', 'snr', 'type', 'hash');
+                    $datarate = $packet->datr;
+                    $packets[] = compact('datetime', 'freq', 'rssi', 'snr', 'type', 'hash', 'datarate');
                 }
             } else if (isset($packet->txpk))  { //Sent beacon
                 $packet = $packet->txpk;
@@ -197,7 +198,8 @@ function extractData($logsPath, $startDate = "", $endDate = ""){
                 }
                 $freq = $packet->freq;
                 $snr = "";
-                $packets[] = compact('datetime', 'freq', 'rssi', 'snr', 'type', 'hash');
+                $datarate = $packet->datar;
+                $packets[] = compact('datetime', 'freq', 'rssi', 'snr', 'type', 'hash', 'datarate');
             }
         }
     }
@@ -336,7 +338,7 @@ function generateList($packets, $includeDataPackets = false) {
     $systemDate = new DateTime();
     $utc = new DateTimeZone( 'UTC' );
 
-    $header = "Date                | Freq  | RSSI | SNR   | Noise  | Type    | Hash";
+    $header = "Date                | Freq  | RSSI | SNR   | Noise  | Type    | Datarate  | Hash";
     $separator = "-------------------------------------------------------------------------------------------------------------";
     $output="";
 
@@ -359,9 +361,10 @@ function generateList($packets, $includeDataPackets = false) {
         $snrStr = str_pad($packet['snr'], 5, " ", STR_PAD_LEFT);
         $noiseStr = str_pad($noise,  6, " ", STR_PAD_LEFT);
         $type = str_pad($packet['type'],7,  " ", STR_PAD_LEFT);
+        $datarate = str_pad($packet['datarate'],9,  " ", STR_PAD_LEFT);
         $hash = @str_pad($packet['hash'],44, " ", STR_PAD_RIGHT);
         $datetimeStr = $datetime->format("d-m-Y H:i:s");
-        $output.=@"$datetimeStr | {$packet['freq']} | {$rssi} | {$snrStr} | {$noiseStr} | $type | $hash" . PHP_EOL;
+        $output.=@"$datetimeStr | {$packet['freq']} | {$rssi} | {$snrStr} | {$noiseStr} | $type | $datarate | $hash" . PHP_EOL;
     }
     return $header . PHP_EOL . $separator . PHP_EOL . $output;
 }
@@ -387,7 +390,7 @@ function generateCSV($packets, $filename = false, $includeDataPackets = false) {
             $noise = "";
         }
         $data.= @array2csv([
-                $packet['datetime'], $packet['freq'], $packet['rssi'], $packet['snr'], $noise, $packet['type'], $packet['hash']]
+                $packet['datetime'], $packet['freq'], $packet['rssi'], $packet['snr'], $noise, $packet['type'], $packet['datarate'], $packet['hash']]
         );
     }
 
