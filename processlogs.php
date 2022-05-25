@@ -20,7 +20,7 @@ $endDate = "2030-01-01";
 $includeDataPackets = false;
 
 // Command line options
-$options = ["d","p:","s:","e:","c::","a","l","i"];
+$options = ["t","d","p:","s:","e:","c::","a","l","i"];
 $opts = getopt(implode("",$options));
 
 // Defaults to stats when called
@@ -38,7 +38,7 @@ uksort($opts, function ($a, $b) use ($options) {
     return $pos_a - $pos_b;
 });
 
-$csvOutput = false;
+$showPayloadData = $csvOutput = false;
 
 // Handle command line arguments
 foreach (array_keys($opts) as $opt) switch ($opt) {
@@ -67,6 +67,10 @@ foreach (array_keys($opts) as $opt) switch ($opt) {
         $csvOutput = true;
         $filename = $opts['c'];
         break;
+    case 't':
+        $showPayloadData = true;
+        $filename = $opts['c'];
+        break;
     case 'a':
         echo "\nUsing logs in {$logsPath}\n\n";
         $packets = extractData($logsPath,$startDate,$endDate);
@@ -76,9 +80,9 @@ foreach (array_keys($opts) as $opt) switch ($opt) {
         echo "\nUsing logs in {$logsPath}\n\n";
         $packets = extractData($logsPath,$startDate,$endDate);
         if (!$csvOutput) {
-            echo generateList($packets,$includeDataPackets);
+            echo generateList($packets,$includeDataPackets,$showPayloadData);
         } else {
-            echo generateCSV($packets,$filename,$includeDataPackets);
+            echo generateCSV($packets,$filename,$includeDataPackets, $showPayloadData);
         }
         exit(1);
     case 'i':
@@ -86,9 +90,9 @@ foreach (array_keys($opts) as $opt) switch ($opt) {
         $packets = extractData($logsPath,$startDate,$endDate);
         $histogram = generateHistogramData($packets,$includeDataPackets);
         if (!$csvOutput) {
-            echo generateHistogramASCIIChart($histogram,$includeDataPackets);
+            echo generateHistogramASCIIChart($histogram,$includeDataPackets,$showPayloadData);
         } else {
-            echo generateCSVHistogram($histogram,$filename,$includeDataPackets);
+            echo generateCSVHistogram($histogram,$filename,$includeDataPackets,$showPayloadData);
         }
         exit(1);
 
@@ -179,7 +183,8 @@ function extractData($logsPath, $startDate = "", $endDate = ""){
                     $snr = $packet->lsnr;
                     $freq = $packet->freq;
                     $datarate = $packet->datr;
-                    $packets[] = compact('datetime', 'freq', 'rssi', 'snr', 'type', 'hash', 'datarate');
+                    $data = $packet->data;
+                    $packets[] = compact('datetime', 'freq', 'rssi', 'snr', 'type', 'hash', 'datarate','data');
                 }
             } else if (isset($packet->txpk))  { //Sent beacon
                 $packet = $packet->txpk;
@@ -199,7 +204,8 @@ function extractData($logsPath, $startDate = "", $endDate = ""){
                 $freq = $packet->freq;
                 $snr = "";
                 $datarate = $packet->datr;
-                $packets[] = compact('datetime', 'freq', 'rssi', 'snr', 'type', 'hash', 'datarate');
+                $data = $packet->data;
+                $packets[] = compact('datetime', 'freq', 'rssi', 'snr', 'type', 'hash', 'datarate','data');
             }
         }
     }
@@ -331,14 +337,15 @@ function generateStats($packets) {
 /**
  * @param $packets
  * @param $includeDataPackets
+ * @param $showPayloadData
  * @return string
  */
-function generateList($packets, $includeDataPackets = false) {
+function generateList($packets, $includeDataPackets = false, $showPayloadData = false) {
 
     $systemDate = new DateTime();
     $utc = new DateTimeZone( 'UTC' );
 
-    $header = "Date                | Freq  | RSSI | SNR   | Noise  | Type    | Datarate  | Hash";
+    $header = "Date                | Freq  | RSSI | SNR   | Noise  | Type    | Datarate  | " . ($showPayloadData)?"Data":"Hash";
     $separator = "-------------------------------------------------------------------------------------------------------------";
     $output="";
 
@@ -362,9 +369,15 @@ function generateList($packets, $includeDataPackets = false) {
         $noiseStr = str_pad($noise,  6, " ", STR_PAD_LEFT);
         $type = str_pad($packet['type'],7,  " ", STR_PAD_LEFT);
         $datarate = str_pad($packet['datarate'],9,  " ", STR_PAD_LEFT);
-        $hash = @str_pad($packet['hash'],44, " ", STR_PAD_RIGHT);
+
+        if ($showPayloadData) {
+            $dataField = $packet['data'];
+        } else {
+            $dataField = @str_pad($packet['hash'], 44, " ", STR_PAD_RIGHT);
+        }
+
         $datetimeStr = $datetime->format("d-m-Y H:i:s");
-        $output.=@"$datetimeStr | {$packet['freq']} | {$rssi} | {$snrStr} | {$noiseStr} | $type | $datarate | $hash" . PHP_EOL;
+        $output.=@"$datetimeStr | {$packet['freq']} | {$rssi} | {$snrStr} | {$noiseStr} | $type | $datarate | $dataField " . PHP_EOL;
     }
     return $header . PHP_EOL . $separator . PHP_EOL . $output;
 }
@@ -373,9 +386,10 @@ function generateList($packets, $includeDataPackets = false) {
 /**
  * @param $packets
  * @param $includeDataPackets
+ * @param $showPayloadData
  * @return string
  */
-function generateCSV($packets, $filename = false, $includeDataPackets = false) {
+function generateCSV($packets, $filename = false, $includeDataPackets = false, $showPayloadData = false) {
 
     $columns = ['Date','Freq','RSSI','SNR','Noise','Type','Hash'];
     $data = array2csv($columns);
@@ -389,8 +403,15 @@ function generateCSV($packets, $filename = false, $includeDataPackets = false) {
         } else {
             $noise = "";
         }
+
+        if ($showPayloadData) {
+            $dataField = $packet['data'];
+        } else {
+            $dataField = @str_pad($packet['hash'], 44, " ", STR_PAD_RIGHT);
+        }
+
         $data.= @array2csv([
-                $packet['datetime'], $packet['freq'], $packet['rssi'], $packet['snr'], $noise, $packet['type'], $packet['datarate'], $packet['hash']]
+                $packet['datetime'], $packet['freq'], $packet['rssi'], $packet['snr'], $noise, $packet['type'], $packet['datarate'], $dataField]
         );
     }
 

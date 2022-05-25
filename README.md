@@ -42,7 +42,7 @@ You can uninstall the service by running:
 
 ## Tool usage
 
-    $ ./processlogs.php { -a | -l | -i } [-s YYYY-MM-DD] [-e YYYY-MM-DD] [-d] [-p /FULL/PATH/TO/LOGS] [-c[FILENAME.CSV]]
+    $ ./processlogs.php { -a | -l | -i } [-s YYYY-MM-DD] [-e YYYY-MM-DD] [-d] [-t] [-p /FULL/PATH/TO/LOGS] [-c[FILENAME.CSV]]
 
 
     Options
@@ -60,6 +60,8 @@ You can uninstall the service by running:
             -c      Create CSV. If no filename is provided, it outputs to stdout
 
             -d      Include data packets, not only witnesses, in generated lists
+
+            -t      Include original payload data instead of hash
 
 
 ## Examples
