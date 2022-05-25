@@ -198,7 +198,7 @@ function extractData($logsPath, $startDate = "", $endDate = ""){
                 }
                 $freq = $packet->freq;
                 $snr = "";
-                $datarate = $packet->datar;
+                $datarate = $packet->datr;
                 $packets[] = compact('datetime', 'freq', 'rssi', 'snr', 'type', 'hash', 'datarate');
             }
         }
