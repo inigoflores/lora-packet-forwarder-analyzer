@@ -69,7 +69,6 @@ foreach (array_keys($opts) as $opt) switch ($opt) {
         break;
     case 't':
         $showPayloadData = true;
-        $filename = $opts['c'];
         break;
     case 'a':
         echo "\nUsing logs in {$logsPath}\n\n";
