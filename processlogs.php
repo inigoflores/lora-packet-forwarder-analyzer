@@ -344,7 +344,8 @@ function generateList($packets, $includeDataPackets = false, $showPayloadData = 
     $systemDate = new DateTime();
     $utc = new DateTimeZone( 'UTC' );
 
-    $header = "Date                | Freq  | RSSI | SNR   | Noise  | Type    | Datarate  | " . ($showPayloadData)?"Data":"Hash";
+    $dataFieldName = ($showPayloadData)?"Data":"Hash";
+    $header = "Date                | Freq  | RSSI | SNR   | Noise  | Type    | Datarate  | " . $dataFieldName ;
     $separator = "-------------------------------------------------------------------------------------------------------------";
     $output="";
 
